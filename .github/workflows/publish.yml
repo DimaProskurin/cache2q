@@ -1,0 +1,38 @@
+name: Upload Python Package
+
+on:
+  release:
+    types: [ created ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+    environment: pypi
+    permissions:
+      id-token: write
+      contents: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13.x'
+
+    - name: Install dependencies
+      run: python -m pip install build twine
+
+    - name: Build package
+      run: python -m build
+
+    - name: Publish package
+      run: python -m twine upload --skip-existing dist/*
+
+    - name: Upload Assets
+      uses: softprops/action-gh-release@v2
+      with:
+        files: dist/*
